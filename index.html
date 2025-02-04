@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA Recognition Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f5f9;
+        }
+        #captchaCanvas {
+            background-color: #e8ecef;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-100 to-blue-100">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
+        <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">CAPTCHA Recognition Demo</h1>
+        
+        <div class="space-y-6">
+            <div class="flex flex-col items-center">
+                <canvas id="captchaCanvas" width="200" height="80" class="border border-gray-300 rounded-lg mb-4"></canvas>
+                <button onclick="generateCaptcha()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    Generate New CAPTCHA
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium text-gray-700 mb-1">Enter CAPTCHA:</label>
+                    <input type="text" id="userInput" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter the CAPTCHA text">
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium text-gray-700 mb-1">AI Prediction:</label>
+                    <input type="text" id="aiPrediction" class="border border-gray-300 rounded-lg px-4 py-2 bg-gray-50" readonly>
+                </div>
+
+                <button onclick="verifyInput()" class="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    Verify
+                </button>
+            </div>
+
+            <div id="result" class="text-center font-medium"></div>
+        </div>
+    </div>
+
+    <script>
+        let captchaText = '';
+
+        // Simulated CNN model prediction (in reality, you would load a trained TensorFlow.js model)
+        async function predictCaptcha(canvas) {
+            // This is a mockup of AI prediction
+            // In a real implementation, you would:
+            // 1. Load a pre-trained model
+            // 2. Preprocess the canvas image
+            // 3. Make prediction using the model
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(captchaText); // In this demo, we're cheating by returning the actual text
+                }, 500);
+            });
+        }
+
+        function generateCaptcha() {
+            const canvas = document.getElementById('captchaCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Generate random text
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            captchaText = '';
+            for(let i = 0; i < 6; i++) {
+                captchaText += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            // Draw text with noise and lines
+            ctx.font = '36px Arial';
+            ctx.fillStyle = '#333';
+            
+            // Add noise
+            for(let i = 0; i < 100; i++) {
+                ctx.fillStyle = `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},0.1)`;
+                ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
+            }
+
+            // Add lines
+            for(let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},0.5)`;
+                ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.stroke();
+            }
+
+            // Draw text
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.fillText(captchaText, canvas.width/2, 50);
+
+            // Trigger AI prediction
+            predictCaptcha(canvas).then(prediction => {
+                document.getElementById('aiPrediction').value = prediction;
+            });
+        }
+
+        function verifyInput() {
+            const userInput = document.getElementById('userInput').value.toUpperCase();
+            const resultDiv = document.getElementById('result');
+
+            if(userInput === captchaText) {
+                resultDiv.textContent = 'Correct! ✅';
+                resultDiv.className = 'text-center font-medium text-green-600';
+            } else {
+                resultDiv.textContent = 'Incorrect, try again! ❌';
+                resultDiv.className = 'text-center font-medium text-red-600';
+            }
+        }
+
+        // Generate initial CAPTCHA on page load
+        generateCaptcha();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
